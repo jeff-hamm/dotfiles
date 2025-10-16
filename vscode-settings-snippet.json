@@ -1,0 +1,11 @@
+{
+  "// Auto-install Copilot CLI via dotfiles on new remotes": "",
+  "dotfiles.repository": "https://github.com/YOUR_USERNAME/dotfiles.git",
+  "dotfiles.installCommand": "bash install-copilot-cli.sh",
+  
+  "// Auto-install Copilot extensions on remotes": "",
+  "remote.SSH.defaultExtensions": [
+    "github.copilot",
+    "github.copilot-chat"
+  ]
+}
