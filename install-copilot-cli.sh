@@ -169,7 +169,18 @@ check_auth_status() {
     return 0
   else
     log "GitHub CLI is not authenticated."
-    log "Run 'gh auth login --web' after this setup completes to sign in."
+    
+    # Try to use forwarded SSH agent or environment token
+    if [[ -n "${GITHUB_TOKEN:-}" ]]; then
+      log "Found GITHUB_TOKEN environment variable, attempting to use it..."
+      gh auth login --with-token <<< "$GITHUB_TOKEN" 2>/dev/null || {
+        log "Failed to authenticate with provided token."
+      }
+    elif [[ -n "${SSH_AUTH_SOCK:-}" ]] && ssh-add -l >/dev/null 2>&1; then
+      log "SSH agent detected, GitHub CLI should work with forwarded credentials."
+    else
+      log "Run 'gh auth login --web' after this setup completes to sign in."
+    fi
     return 1
   fi
 }
@@ -180,6 +191,11 @@ main() {
   ensure_gh
   
   if has_cmd gh; then
+    # Try to setup authentication first
+    if [[ -f "$(dirname "$0")/setup-github-auth.sh" ]]; then
+      source "$(dirname "$0")/setup-github-auth.sh"
+    fi
+    
     check_auth_status
     install_copilot_cli
     
